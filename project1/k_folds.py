@@ -21,14 +21,16 @@ def k_fold_crossvalidation(model_constructor, options):
     complexity = options['complexity'] # polynomial degrees
     k_folds = options['k_folds'] # number of folds
 
-    # get test dataset
+    # get dataset
     try:
-        if options['terrain']:
-            print('Running terrain data')
+        if 'terrain' in options:
             r, labels = terrain.get_dataset()
+        else:
+            print('Warning: Terrain data not selected, default to test')
+            r, labels = frank.get_dataset(n, stddev = stddev)
     except KeyError as e:
+        # if terrain not in options, run test dataset
         r, labels = frank.get_dataset(n, stddev = stddev)
-
     x_train, x_test, y_train, y_test = train_test_split(r, labels, test_size = 0.2)
 
     # number of samples to go into crossvalidation

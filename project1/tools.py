@@ -1,4 +1,6 @@
 import numpy as np
+# my own implementations of various tools, but ended up using mostly
+# sklearn algos (for safety). I do data scaling.
 
 class Scaler(object):
     # scale input data

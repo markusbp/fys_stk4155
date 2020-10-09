@@ -29,7 +29,7 @@ if __name__ == '__main__':
     y = np.arange(0, 1, 0.025)
     x, y = np.meshgrid(x,y)
 
-    z = FrankeFunction(x, y, True)
+    z = FrankeFunction(x, y, 0)
     # Plot the surface.
     surf = ax.plot_surface(x, y, z, cmap = cm.coolwarm, \
                            linewidth = 0, antialiased = False)

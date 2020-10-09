@@ -18,7 +18,7 @@ def task_a():
 
     stddev = [0, 1] # Data noise
 
-    for std in stddev:
+    for std, marker in zip(stddev, ['.', '*']):
         r, labels = frank.get_dataset(n, stddev = std)
 
         x_train, x_test, y_train, y_test = train_test_split(r, labels, test_size = 0.2)
@@ -40,20 +40,31 @@ def task_a():
 
         # find variance of least squares estimator beta; (x^Tx)^-1*sigma^2
         # estimate error as 1/(N-p-1)*sum of residuals
-        sigma2 = 1/(n-p-1)*test_mse*len(y_train) # Test MSE = 1/n_test*sum of residuals
-        X = model.design_matrix(scaled_train_x) # get design matrix
+        sigma2 = 1/(n-p-1)*test_mse*len(y_test) # Test MSE = 1/n_test*sum of residuals
+        X = model.design_matrix(scaled_test_x) # get design matrix
         var_beta = np.diag(sigma2*np.linalg.inv(X.T@X))
 
-        errorbars = sig*np.sqrt(var_beta)
+        errorbars = sig*np.sqrt(var_beta) # 95 % confidence interval
 
         plt.errorbar(np.arange(len(model.beta_)), model.beta_, yerr = errorbars,
-                     fmt = '.', label = f'$S_D$ = {std}')
-
+                     fmt = marker, label = f'$S_D$ = {std}', alpha = 0.5)
+        plt.ylabel('Coefficient Value', fontsize = 12)
+        plt.xlabel('Coefficient No.', fontsize = 12)
         print(f'Training loss {train_mse}, test loss {test_mse}')
-        print(f'Test R2 Score {r2}')
+        print(f'Test R2 Score {r2}\n')
 
     plt.legend(frameon = False)
     plt.savefig('./results/task_a')
 
 if __name__ == '__main__':
     task_a()
+
+    # run example
+    '''
+    Training loss 0.0016740177505400733, test loss 0.0021402492653484957
+    Test R2 Score 0.9781600158154178
+
+    Training loss 0.8749968363131034, test loss 0.9967125779891868
+    Test R2 Score 0.07195101635998213
+
+    '''

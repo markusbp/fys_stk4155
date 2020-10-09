@@ -30,4 +30,5 @@ if __name__ == '__main__':
     test_ols()
     print('\nDesign matrix indices for p = 3')
     test_design_matrix_algo()
-    # was supposed to implement more tests using pytest, but didn't have time :(
+    # was supposed to implement more tests using pytest,
+    # but didn't have time bc. of midterms :(
