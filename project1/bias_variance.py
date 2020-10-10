@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 def bias_variance_analysis(model_constructor, options):
     # Perform bias-variance analysis
     '''
-    Does k_fold crossvalidation.
+    Does bias-variance analysis.
 
     model_constructor: function that returns regression model.
     Must take polynomial degree as argument.
