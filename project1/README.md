@@ -16,6 +16,9 @@ different polynomial degrees, using k-fold cross-validation
 task_a - task_g: Contains code solving each task, with run examples when relevant,
 uses mostly bias_variance.py, k_folds.py and grid_search.py.
 
+[test_best.py](test_best.py): Trains the best model from a
+grid search run on terrain data, and tests it on the full 100x100 dataset.
+
 [tools.py](tools.py): Contains various implementations of dataset processing tools,
 now only scaler is really used (sklearn is used for train/test split, etc.)
 

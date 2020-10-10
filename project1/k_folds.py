@@ -13,7 +13,19 @@ from sklearn.model_selection import train_test_split
 
 
 def k_fold_crossvalidation(model_constructor, options):
-    # do k-fold cross-validation
+    '''
+    Does k_fold crossvalidation.
+
+    model_constructor: function that returns regression model.
+    Must take polynomial degree as argument.
+    options: options for analysis, must contain
+    n - number of points in franke dataset (if applicable)
+    stddev - standard deviation of normal noise to add to Franke function
+    complexity - array/list containing polynomials to run through
+    k_folds: number of folds, e.g. 5 or 10.
+    Can contain optional bool key terrain: this does analysis for terrain data
+    '''
+
     np.random.seed(0)
 
     n = options['n'] # number of test dataset samples

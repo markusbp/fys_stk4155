@@ -5,8 +5,17 @@ from bias_variance import bias_variance_analysis
 from k_folds import k_fold_crossvalidation
 
 def line_search(model_constructor, options, title):
-    # method for searching only for polynomial degree for OLS (1D grid search)
+    '''
+        Method for searching only for polynomial degree for OLS (1D grid search)
+
+        model_constructor: function for constructing model, must take
+        polynomial degree as argument to run search.
+        options: contains various parameters used for training and searching,
+        see k_folds.py or bias_variance.py
+        title: name of image file to be saved
+    '''
     degrees = options['complexity'] # polynomial degrees
+    # perform analysis...es
     test_mse, test_bias, test_var = bias_variance_analysis(model_constructor, options)
     k_fold_mse = k_fold_crossvalidation(model_constructor, options)
 
@@ -18,16 +27,25 @@ def line_search(model_constructor, options, title):
     plt.xlabel('Polynomial Degree', fontsize = 12)
     plt.legend(frameon = False)
     plt.savefig(title)
-    best_k_fold = np.argmin(k_mse) # return best model parameters
+    best_k_fold = np.argmin(k_fold_mse) # return best model parameters
     best_bootstrap = np.argmin(test_mse)
-    best_performers = {'Best k_fold mse': k_mse[best_k_fold],
+    best_performers = {'Best k_fold mse': k_fold_mse[best_k_fold],
                        'Best k_fold poly': degrees[best_k_fold],
                        'Best bootstrap mse:': test_mse[best_bootstrap],
                        'Best bootstrap poly': degrees[best_bootstrap]}
     return best_performers # best OLS model
 
 def grid_search(model_constructor, options, title):
-    # method for searching for polynomial degree and shrinkage parameters (2D grid search)
+    '''
+        Method for searching for polynomial degree and shrinkage parameters (2D grid search)
+
+        model_constructor: function for constructing model, must take
+        polynomial degree and shrinkage parameter as arguments to run search.
+        options: contains various parameters used for training and searching,
+        see k_folds.py or bias_variance.py
+        title: name of image file to be saved
+    '''
+
     degrees = options['complexity'] # polynomial degrees
     lambdas = options['lambdas'] # shrinkage parameters
     n_poly = len(degrees)

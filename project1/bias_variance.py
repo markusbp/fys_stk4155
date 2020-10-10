@@ -12,6 +12,19 @@ from sklearn.model_selection import train_test_split
 
 def bias_variance_analysis(model_constructor, options):
     # Perform bias-variance analysis
+    '''
+    Does k_fold crossvalidation.
+
+    model_constructor: function that returns regression model.
+    Must take polynomial degree as argument.
+    options: options for analysis, must contain
+    n - number of points in franke dataset (if applicable)
+    stddev - standard deviation of normal noise to add to Franke function
+    complexity - array/list containing polynomials to run through
+    n_bootstraps: number of bootstraps, e.g. 100.
+    Can contain optional bool key terrain: this does analysis for terrain data
+    '''
+
     np.random.seed(0)
     # get analysis options
     n = options['n'] # number of samples for test dataset
@@ -39,7 +52,7 @@ def bias_variance_analysis(model_constructor, options):
     test_mse = np.zeros(len(complexity)) # init. statistics
     test_var = np.zeros(len(complexity))
     test_bias = np.zeros(len(complexity))
-    
+
     # almost all tasks involve running over polynomials, so why not do it here
     for i, p in enumerate(complexity): # grid search polynomial degree
         test_preds = np.zeros((len(y_test), n_bootstraps))

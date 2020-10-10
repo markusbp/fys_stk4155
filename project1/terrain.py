@@ -43,7 +43,6 @@ def get_full_dataset():
     return r, labels.ravel()
 
 
-
 if __name__ == '__main__':
     inspect_data()
     get_dataset()

@@ -42,8 +42,8 @@ def task_b_1():
     plt.xticks(np.arange(0,complexity, 2))
     plt.legend(frameon = False)
 
-    plt.xlabel('Model Complexity (Polynomial degree)')
-    plt.ylabel('Mean Squared Error')
+    plt.xlabel('Model Complexity (Polynomial degree)', fontsize = 12)
+    plt.ylabel('Mean Squared Error', fontsize = 12)
     plt.savefig('./results/task_b_train_test_mse.png')
     plt.close()
 
