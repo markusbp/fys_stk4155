@@ -12,7 +12,6 @@ class GD(object):
         self.v_ = 0
 
     def step(self, x, grad, epoch = 1):
-        print(x.shape)
         self.v_ = self.momentum*self.v_ + self.lr(epoch)*grad
         return x - self.v_
 

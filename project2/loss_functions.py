@@ -5,4 +5,4 @@ class MSE(object):
         return np.mean((x-y)**2)
 
     def gradient(self, x, y):
-        return np.zeros(x.shape)
+        return -2/len(x)*(y - x)

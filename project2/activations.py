@@ -25,3 +25,17 @@ class LeakyRelu(object):
 class Softmax(object):
     def __call__(self, x):
         return np.exp(x)/np.sum(np.exp(x), axis = -1, keepdims = True)
+
+    def gradient(self, x):
+
+
+class Linear(object):
+    def __call__(self, x):
+        return x
+
+    def gradient(self, x):
+        return np.ones_like(x)
+
+
+if __name__ == '__main__':
+    print('Hi :o)')

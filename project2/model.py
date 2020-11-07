@@ -14,10 +14,11 @@ class FFNN(object):
             x = layer(x) # output is input to next layer
         return x
 
-    def train(self, x, y, lr, mom, epochs = 1, bs = 100):
+    def train(self, x, y, lr, mom, epochs = 10, bs = 100):
 
         steps = len(x)//bs
-
+        mean_axes = tuple(range(len(x.shape) - 1)) # take mean of gradient over first axes
+        n_samples = 0 #######################################################################
         n = len(self.layers)
         # set up gradient descent optimizers for each layer, for bias and weigths
         trainer = np.array([[GD(lr, mom), GD(lr, mom)] for i in range(n)])
@@ -28,25 +29,21 @@ class FFNN(object):
                 batch_x = x[batch_inds] # random minibatches
                 batch_y = y[batch_inds]
                 grad_w, grad_b = self.backprop(batch_x, batch_y)
-                print(np.array(grad_w[1]).shape)
                 for l, layer in enumerate(self.layers):
-                    #print(grad_w[l].shape, l)#.shape, layer.kernel.shape)
-                    print(l)
-                    print(grad_w[l].shape)
-                    print(trainer[l,0].step(layer.kernel, grad_w[l], i))
-                    layer.kernel = trainer[l,0].step(layer.kernel, grad_w[l], i)
-                    layer.bias = trainer[l,1].step(layer.bias, grad_b[l], i)
+                    mean_grad_w = np.mean(grad_w[l], axis = mean_axes)
+                    mean_grad_b = np.mean(grad_b[l], axis = mean_axes)
+                    layer.kernel = trainer[l,0].step(layer.kernel, mean_grad_w, i)
+                    layer.bias = trainer[l,1].step(layer.bias, mean_grad_b, i)
 
     def backprop(self, x, y):
         n = len(self.layers)
         a = [0 for i in range(n+1)] # activations
         grad = [0 for i in range(n)] # derivative of activation function
-        g = [0 for i in range(n)] # gamma, "error"
 
         grad_w = [0 for i in range(n)]
         grad_b = [0 for i in range(n)]
 
-        a[0] = x
+        a[0] = x # input layer
         # forward pass
         for l, layer in enumerate(self.layers):
             z = layer.forward(x)
@@ -55,16 +52,15 @@ class FFNN(object):
             a[l+1] = x
 
         # backward pass
-        g[-1] = self.loss.gradient(a[-1], y)*grad[-1] # output "error"
-        for l in range(1, len(self.layers) + 1):
+        g = self.loss.gradient(a[-1], y)*grad[-1] # output "error", gamma
+
+        for l in range(1, len(self.layers)+1):
             if l == 1:
                 pass
             else:
-                g[-l] = np.tensordot(g[-l+1], self.layers[-l+1].kernel.T, axes = [-1, 1])*grad[-l]
-                grad_w[-l] = g[-l][:,:, None]*a[-l-1][:,None,:]
-                grad_b[-l] = g[-l]
-            print(-l)
-
+                g = np.tensordot(g, self.layers[-l+1].kernel.T, axes = [-1, 1])*grad[-l]
+            grad_w[-l] = np.expand_dims(g, axis = -1)*np.expand_dims(a[-l-1], axis = -2)
+            grad_b[-l] = g
         return grad_w, grad_b
 
     def add_layer(self, out_dim, activation, kernel_init = 'random_normal',
