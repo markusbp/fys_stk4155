@@ -48,8 +48,7 @@ class Linear:
         lr : learning rate
         mom: momentum
         '''
-        beta = np.random.uniform(-0.01, 0.01, self.combinations) # initial guess IMPROVE
-        v = 0 # zero moemntum to start
+        beta = np.random.normal(0, 0.05, self.combinations)
         steps = len(x)//bs
 
         for i in trange(epochs, desc = 'Training'):
@@ -62,7 +61,7 @@ class Linear:
                 batch_x = x_train[batch_inds] # random minibatches
                 batch_y = y_train[batch_inds]
                 grad = self.gradient(batch_x, batch_y, beta, bs)
-                beta = trainer.step(beta, grad, i) # gradient descent step
+                beta = trainer.step(beta, grad, i, steps) # gradient descent step
             self.beta_ = beta
 
 class RidgeRegression(Linear):
@@ -78,4 +77,12 @@ class RidgeRegression(Linear):
     def gradient(self, x, y, beta, n):
         # gradient of the error wrt. beta
         d = self.design_matrix(x)
-        return 2/n*d.T@(d@beta - y) - 2*beta
+        return 2/n*d.T@(d@beta - y) + 2*self.lam*beta
+
+class LogisticRegression(Linear):
+    def __init__(self, p, lam):
+        super().__init__(p)
+        self.lam = lam
+
+    def gradient(self, x, y, beta, n):
+        pass
