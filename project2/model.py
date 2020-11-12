@@ -24,8 +24,7 @@ class FFNN(object):
             x: input data
             y: target data
             metric: desired metric, must be 'loss', in which case the model loss
-            is computed, 'accuracy' (for classification tasks), or 'R2', which
-            computes R2 score.
+            is computed, or 'accuracy' (for classification tasks).
         '''
         pred = self(x) # prediction
 
@@ -39,8 +38,6 @@ class FFNN(object):
                 one_hot[i, inds[i]] = 1
             # gives +1 only when y and x are maxmimal (1) at the same time
             result = np.mean(np.sum(one_hot*y, axis = -1)) # assume one-hot y
-        elif metric == 'r2':
-            pass
         return result
 
     def train(self, x, y, lr, mom = 0, epochs = 10, bs = 100, val_data = None,
@@ -56,7 +53,7 @@ class FFNN(object):
             bs: batch size
             val_data: tuple containing (validation x, validation y) for testing
             metrics: list containing string of desired metrics to compute.
-                     Must be 'loss', 'accuracy' or 'R2'.
+                     Must be 'loss' or 'accuracy'.
             decay: Whether to apply learning rate decay during training
         '''
         train_results = np.zeros((epochs, len(metrics))) # save errors

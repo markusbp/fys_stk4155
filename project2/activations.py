@@ -5,7 +5,8 @@ class Sigmoid(object):
         return 1/(1 + np.exp(-x))
 
     def gradient(self, x):
-        return self(x)**2*np.exp(-x)
+        s = self(x)
+        return s*(1 - s)
 
 class Relu(object):
     def __call__(self, x):
@@ -23,7 +24,7 @@ class LeakyRelu(object):
         return np.where(x > 0.0, x, self.a*x)
 
     def gradient(self, x):
-        return np.where( x > 0.0, 1.0, self.a)
+        return np.where(x > 0.0, 1.0, self.a)
 
 class Softmax(object):
     def __call__(self, x):

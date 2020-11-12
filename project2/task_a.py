@@ -73,6 +73,12 @@ def search_ols(r_train, y_train, r_test, y_test, epochs = 1):
     plt.tight_layout()
     plt.savefig('./results/task_a_ols.png')
 
+    ols_model = reg.Linear(p = 14)
+    ols_model.fit(r_train, y_train)
+
+    ols_err = bootstrap_mse(ols_model, r_test, y_test)
+    ols_r2 = bootstrap_r2(ols_model, r_test, y_test)
+
     sk_model = SGDRegressor(fit_intercept=False, alpha = 0, eta0 = lr)
     pipe = PolynomialFeatures(degree=14)
 
@@ -89,6 +95,7 @@ def search_ols(r_train, y_train, r_test, y_test, epochs = 1):
     sk_r2 = bootstrap_r2(sk_model, r_test, y_test)
 
     print('SKlearn model MSE:', sk_error, '. SKlearn model R2:', sk_r2)
+    print('OLS model MSE:', ols_err, '. OLS model R2:', ols_r2)
 
 
 def search_ridge(r_train, y_train, r_test, y_test, epochs = 1):
@@ -144,4 +151,5 @@ if __name__ == '__main__':
     search_ridge(r_train, y_train, r_test, y_test, epochs = 100)
 
     #Run example:
-    # SKlearn model MSE: 0.04994766791816803. SKlearn model R2: 0.5291397922072351
+    # SKlearn model MSE: 0.04958971687144914 . SKlearn model R2: 0.6063338850674247
+    # OLS model MSE: 0.0463499927777239 . OLS model R2: 0.6348382786709478
