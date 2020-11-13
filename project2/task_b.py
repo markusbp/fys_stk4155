@@ -17,6 +17,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 def bootstrap_mse(model, x_test, y_test, n_bootstraps = 100):
+    # calculate MSE using bootstrap resampling
     err = 0
     for i in range(n_bootstraps):
         b_x, b_y = resample(x_test, y_test)
@@ -24,6 +25,7 @@ def bootstrap_mse(model, x_test, y_test, n_bootstraps = 100):
     return err/n_bootstraps
 
 def bootstrap_r2(model, x_test, y_test, n_bootstraps = 100):
+    # calculate R2 score using bootstrap resampling
     r2 = 0
     for i in range(n_bootstraps):
         b_x, b_y = resample(x_test, y_test)
@@ -33,13 +35,14 @@ def bootstrap_r2(model, x_test, y_test, n_bootstraps = 100):
     return r2/n_bootstraps
 
 def verify(r_train, y_train, r_test, y_test):
+    # train FFNNs, compare with tensorflow model
 
-    mse = loss_functions.MSE()
-    relu = activations.Relu()
-    linear = activations.Linear()
+    mse = loss_functions.MSE() # loss
+    relu = activations.Relu() # hidden layer activation
+    linear = activations.Linear() # output activation
     model = FFNN(mse)
-    model.add_layer(128, relu, first_dim = r_train.shape[-1])
-    model.add_layer(1, linear)
+    model.add_layer(128, relu, first_dim = r_train.shape[-1]) # input layer
+    model.add_layer(1, linear) # output layer
 
     batch_size = 10
     epochs = 1000
@@ -48,7 +51,7 @@ def verify(r_train, y_train, r_test, y_test):
     train_err, test_err = model.train(r_train, y_train[:, None], lr = lr,
                                       epochs = epochs, mom = 0, bs = batch_size,
                                       val_data = (r_test, y_test[:,None]), decay = False)
-
+    # tf model
     input_layer = tf.keras.layers.Dense(128, activation = 'relu', kernel_initializer = 'random_normal', bias_initializer = 'zeros')
     output_layer = tf.keras.layers.Dense(1, activation = None, kernel_initializer = 'random_normal', bias_initializer = 'zeros')
     model = tf.keras.Sequential([input_layer, output_layer])
@@ -70,16 +73,16 @@ def verify(r_train, y_train, r_test, y_test):
     plt.savefig('./results/task_b.png')
 
 def search(r_train, y_train, r_test, y_test, epochs = 100):
-
+    # search for learning rate and L2 weight regularization
     learning_rates = np.geomspace(1e-4, 0.1, 4)
     lams = np.geomspace(1e-4, 0.1, 4)
 
     test_err = np.zeros((len(lams), len(learning_rates)))
     test_r2 = np.zeros((len(lams), len(learning_rates)))
 
-    mse = loss_functions.MSE()
-    relu = activations.Relu()
-    linear = activations.Linear()
+    mse = loss_functions.MSE() # loss function
+    relu = activations.Relu() # hidden layer activation
+    linear = activations.Linear() # output activation
 
     batch_size = 10
 
@@ -115,10 +118,10 @@ def search(r_train, y_train, r_test, y_test, epochs = 100):
 if __name__ == '__main__':
 
     samples = 1000
-    data, labels = frank.get_dataset(samples)
+    data, labels = frank.get_dataset(samples) # Franke function
     r_train, r_test, y_train, y_test = train_test_split(data, labels)
 
-    mu = np.mean(r_train)
+    mu = np.mean(r_train) # scale data
     r_train = r_train - mu
     r_test = r_test - mu
 

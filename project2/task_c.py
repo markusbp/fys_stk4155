@@ -10,6 +10,8 @@ import activations
 import loss_functions
 import franke_function as frank
 
+# Train models with different hidden layer activations
+# Try two different weigth initializations for kernels
 
 n = 1000
 data, labels = frank.get_dataset(n)
@@ -19,14 +21,14 @@ mean = np.mean(r_train)
 r_train = r_train - mean
 r_test = r_test - mean
 
-mse = loss_functions.MSE()
-
+mse = loss_functions.MSE() # loss function
+# all possible hidden layer activations
 sigmoid = activations.Sigmoid()
 relu = activations.Relu()
 leaky_relu = activations.LeakyRelu()
 linear = activations.Linear()
 funcs = [sigmoid, relu, leaky_relu, linear]
-
+# plot in nice rows
 fig, axs = plt.subplots(2,2, figsize = (10, 10))
 row = [0, 0, 1, 1]
 col = [0, 1, 0, 1]
@@ -36,16 +38,16 @@ batch_size = 10
 best_test = 1
 
 for activation, name, row, col in zip(funcs, names, row, col):
-    for init in ['random_normal', 'glorot_uniform']:
+    for init in ['random_normal', 'glorot_uniform']: # kernel initializations
 
         model = FFNN(mse)
-        model.add_layer(128, activation, first_dim = r_train.shape[-1], kernel_init = init, bias_init = init)
+        model.add_layer(128, activation, first_dim = r_train.shape[-1], kernel_init = init, bias_init = 'zeros')
         model.add_layer(1, linear, kernel_init = init, bias_init = init)
 
         train_err, test_err = model.train(r_train, y_train[:, None], lr = 1e-3,
                                           epochs = 500, mom = 0, bs = batch_size,
                                           val_data = (r_test, y_test[:,None]))
-        if np.amin(test_err) < best_test:
+        if np.amin(test_err) < best_test: # find best performer
             best_test = np.amin(test_err)
             best_model = name + ' ' + init
 
@@ -59,3 +61,6 @@ for activation, name, row, col in zip(funcs, names, row, col):
 plt.tight_layout()
 plt.savefig('./results/task_c.png')
 print('Best model test MSE', best_test, 'Best model:', best_model)
+
+# Example run:
+# Best model test MSE 0.04906212140077726 Best model: Relu glorot_uniform

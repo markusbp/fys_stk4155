@@ -1,4 +1,5 @@
 import numpy as np
+# module containing activation functions, hopefully self-explanatory!
 
 class Sigmoid(object):
     def __call__(self, x):
@@ -10,7 +11,6 @@ class Sigmoid(object):
 
 class Relu(object):
     def __call__(self, x):
-        # apparently in-place maxmimum is faster, hence out = x
         return np.maximum(0.0, x)
 
     def gradient(self, x):
@@ -42,14 +42,9 @@ class Linear(object):
     def gradient(self, x):
         return np.ones_like(x)
 
-class Logistic(object):
-    def __call__(self, x):
-        pass
-
-
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
-
+    # visualize all activation functions
     n = 100
     x = np.linspace(-5, 5, n)
     funcs = [Sigmoid(), Relu(), LeakyRelu(0.05), Linear()]

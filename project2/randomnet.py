@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
 from sklearn.model_selection import train_test_split
 
 import regression as reg
@@ -85,6 +84,7 @@ for i in range(n_models):
         best_params = params
 
 print('Best model parameters:', best_params, '. With', len(best_params), 'hidden layers.')
+print('Best test error:', best_error)
 
 plt.plot(test_error, label = 'Test', linewidth = 0.75)
 plt.plot(train_error, label = 'Train', linewidth = 0.75)
@@ -97,9 +97,9 @@ plt.savefig('./results/random.png')
 
 
 # Example run:
-#
-# Best model parameters: [[86, 'Linear', ['random_normal', 'glorot_uniform']],
-# [38, 'Leaky Relu', ['random_normal', 'random_normal']],
-# [89, 'Relu', ['random_normal', 'random_normal']],
-# [87, 'Relu', ['random_normal', 'glorot_uniform']],
-# [83, 'Linear', ['zeros', 'random_normal']]] . With 5 hidden layers.
+# Best model parameters: [[35, 'Leaky Relu', ['zeros', 'glorot_uniform']],
+# [88, 'Relu', ['random_normal', 'glorot_uniform']], [45, 'Linear',
+# ['random_normal', 'random_normal']], [21, 'Leaky Relu', ['zeros', 'glorot_uniform']],
+# [50, 'Leaky Relu', ['random_normal', 'glorot_uniform']], [67, 'Relu', ['zeros', 'glorot_uniform']],
+# [22, 'Leaky Relu', ['random_normal', 'glorot_uniform']]] . With 7 hidden layers.
+# Best test error: 0.057070955211923305

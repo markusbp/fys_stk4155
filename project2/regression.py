@@ -14,7 +14,6 @@ class Linear:
         self.p = p # degree of polynomial
         self.combinations = int(0.5*(self.p+1)*(self.p+2)) # number of combinations of x,y
 
-    #@jit # speed up, somewhat
     def design_matrix(self, r):
         # create design matrix for polynomial regression
         x = np.zeros((len(r), self.combinations)) # design matrix
@@ -48,7 +47,7 @@ class Linear:
         lr : learning rate
         mom: momentum
         '''
-        beta = np.random.normal(0, 0.05, self.combinations)
+        beta = np.random.normal(0, 0.05, self.combinations) # random normal init.
         steps = len(x)//bs
 
         for i in trange(epochs, desc = 'Training'):

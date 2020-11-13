@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.model_selection import train_test_split
@@ -11,9 +12,9 @@ import franke_function as frank
 import regression as reg
 from gradient_descent import GD
 
-import seaborn as sns
 
 def bootstrap_mse(model, x_test, y_test, n_bootstraps = 100):
+    # calculate mean squared error using bootstrap resampling
     err = 0
     for i in range(n_bootstraps):
         b_x, b_y = resample(x_test, y_test)
@@ -21,6 +22,7 @@ def bootstrap_mse(model, x_test, y_test, n_bootstraps = 100):
     return err/n_bootstraps
 
 def bootstrap_r2(model, x_test, y_test, n_bootstraps = 100):
+    # calculate R2 score using bootstrap resampling
     r2 = 0
     for i in range(n_bootstraps):
         b_x, b_y = resample(x_test, y_test)
@@ -30,28 +32,29 @@ def bootstrap_r2(model, x_test, y_test, n_bootstraps = 100):
     return r2/n_bootstraps
 
 def search_ols(r_train, y_train, r_test, y_test, epochs = 1):
-
-    bs = [10, 50, 100, len(r_train)]
+    # grid search batch size and learning rates for OLS model
+    bs = [10, 50, 100, len(r_train)] # batch size
     learning_rates = np.geomspace(1e-4, 0.1, 4)
-    static = [True, False]
+    lr_decay = [True, False] # whether to apply learning rate decay
 
-    error = np.zeros((2, len(bs), len(learning_rates)))
-    r2 = np.zeros((2, len(bs), len(learning_rates)))
+    error = np.zeros((2, len(bs), len(learning_rates))) # test MSE
+    r2 = np.zeros((2, len(bs), len(learning_rates))) # test R2 score
 
     fig, ax = plt.subplots(2, 2, figsize = (10, 10))
 
-    for h, decay in enumerate(static):
+    for h, decay in enumerate(lr_decay):
         for i, batch_size in enumerate(bs):
             for j, lr in enumerate(learning_rates):
 
-                sgd_model = reg.Linear(p = 14)
+                sgd_model = reg.Linear(p = 14) # sgd regression model
 
                 trainer = GD(lr0 = lr, decay = decay) # gradient descent
-                sgd_model.fit_sgd(r_train, y_train, batch_size, epochs, trainer)
-
+                sgd_model.fit_sgd(r_train, y_train, batch_size, epochs, trainer) # train
+                # evaluate
                 error[h,i,j] = bootstrap_mse(sgd_model, r_test, y_test)
                 r2[h,i,j] = bootstrap_r2(sgd_model, r_test, y_test)
 
+        # plot grid search results
         if decay == False:
             title = 'Constant LR'
         else:
@@ -74,11 +77,11 @@ def search_ols(r_train, y_train, r_test, y_test, epochs = 1):
     plt.savefig('./results/task_a_ols.png')
 
     ols_model = reg.Linear(p = 14)
-    ols_model.fit(r_train, y_train)
+    ols_model.fit(r_train, y_train) # Train regular model using least squares
 
     ols_err = bootstrap_mse(ols_model, r_test, y_test)
     ols_r2 = bootstrap_r2(ols_model, r_test, y_test)
-
+    # train scikit learn model
     sk_model = SGDRegressor(fit_intercept=False, alpha = 0, eta0 = lr)
     pipe = PolynomialFeatures(degree=14)
 
@@ -97,12 +100,10 @@ def search_ols(r_train, y_train, r_test, y_test, epochs = 1):
     print('SKlearn model MSE:', sk_error, '. SKlearn model R2:', sk_r2)
     print('OLS model MSE:', ols_err, '. OLS model R2:', ols_r2)
 
-
 def search_ridge(r_train, y_train, r_test, y_test, epochs = 1):
-
-    static = True
+    # grid search for ridge regressin, shrinkage parameter
     batch_size = 10
-    lams = np.geomspace(1e-5, 0.01, 4)
+    lams = np.geomspace(1e-4, 0.1, 4) # l2 weight regularization
     learning_rates = np.geomspace(1e-4, 0.1, 4)
 
     error = np.zeros((len(lams), len(learning_rates)))
@@ -116,8 +117,8 @@ def search_ridge(r_train, y_train, r_test, y_test, epochs = 1):
             sgd_model = reg.RidgeRegression(14, lam)
 
             trainer = GD(lr0 = lr, decay = False) # gradient descent
-            sgd_model.fit_sgd(r_train, y_train, batch_size, epochs, trainer)
-
+            sgd_model.fit_sgd(r_train, y_train, batch_size, epochs, trainer) # train
+            # evaluate
             error[i,j] = bootstrap_mse(sgd_model, r_test, y_test)
             r2[i,j] = bootstrap_r2(sgd_model, r_test, y_test)
 
@@ -139,7 +140,7 @@ def search_ridge(r_train, y_train, r_test, y_test, epochs = 1):
 
 if __name__ == '__main__':
     samples = 1000
-
+    # load and scale Franke function dataset
     data, labels = frank.get_dataset(samples)
     r_train, r_test, y_train, y_test = train_test_split(data, labels)
 

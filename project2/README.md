@@ -16,4 +16,10 @@ with gradients.
 [activations.py](activations.py): Contains all activation function definitions,
 with gradients.
 
-task_a - task_e: Contains code solving each task, with run examples when relevant.
+[randomnet.py](randomnet.py): Contains RandomNet, which builds a randomly cobbled
+together neural network using all the activations and initializations found
+in the repo. Maximum number of layers is 10, maximum number of nodes in a layer is 100,
+but this is only to keep it reasonably fast. Then computes best performer on the
+Franke function dataset.
+
+task_a - task_e: Contains code (hopefully) solving each task, with run examples when relevant.
