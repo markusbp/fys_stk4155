@@ -9,11 +9,15 @@ class BaseLineRNN(tf.keras.Model):
         self.options = options
         #
         self.rnn_layer = tf.keras.layers.SimpleRNN(options.nodes, return_sequences = True)
-        self.output_layer = tf.keras.layers.Dense(options.out_nodes)
+        self.output_layer = tf.keras.layers.Dense(options.out_nodes, activation = 'relu')
         self.start_state = self.add_weight(name = 'init_state', shape = (1, options.nodes))
 
         self.bs = options.batch_size
         self.ts = options.timesteps
+
+
+        self.act_l2 = tf.keras.layers.ActivityRegularization(l2 = 1e-4)
+
 
     def call(self, inputs, training = True):
 
@@ -21,6 +25,8 @@ class BaseLineRNN(tf.keras.Model):
 
         initial_state = self.start_state*tf.ones((self.options.batch_size, 1))
         self.rnn_states = self.rnn_layer(inputs[0], initial_state = [initial_state])
+
+        self.act_l2(self.rnn_states)
 
         self.outputs = self.output_layer(self.rnn_states)
 
@@ -46,8 +52,7 @@ class EgoRNN(tf.keras.Model):
         self.options = options
 
         activation = tf.keras.layers.Activation(options.activation)
-        output_activation = tf.keras.layers.Activation(options.output_activation)
-        self.output_layer = tf.keras.layers.Dense(options.out_nodes, activation = output_activation)
+        self.output_layer = tf.keras.layers.Dense(options.out_nodes, activation = 'relu')
 
         random_normal = tf.keras.initializers.RandomNormal(0, 0.001)
         rec_reg = tf.keras.regularizers.l2(options.l2)
@@ -64,12 +69,16 @@ class EgoRNN(tf.keras.Model):
         self.bs = options.batch_size
         self.ts = options.timesteps
 
+        #self.act_l2 = tf.keras.layers.ActivityRegularization(l2 = 1e-4)
+
     def call(self, inputs, training = True):
 
         r = inputs[1]
 
         initial_state = self.start_state*tf.ones((self.options.batch_size, 1))
         self.rnn_states = self.rnn_layer(inputs[0], initial_state = [initial_state])
+
+        #self.act_l2(self.rnn_states)
 
         if self.options.dropout_rate != 0:
             dropped = self.output_layer(self.rnn_states)
@@ -146,9 +155,6 @@ class RBFRNN(tf.keras.Model):
         super().__init__()
         self.options = options
 
-        activation = tf.keras.layers.Activation(options.activation)
-        output_activation = tf.keras.layers.Activation(options.output_activation)
-
         rnn_cell = RNNcell(options)
         self.rnn_layer = tf.keras.layers.RNN(rnn_cell, return_sequences = True)
 
@@ -156,7 +162,7 @@ class RBFRNN(tf.keras.Model):
             self.dropout = tf.keras.layers.Dropout(options.dropout_rate)
 
 
-        self.output_layer = tf.keras.layers.Dense(options.out_nodes, activation = output_activation)
+        self.output_layer = tf.keras.layers.Dense(options.out_nodes, activation = 'relu')
 
         self.start_state = self.add_weight(name = 'init_state', shape = (1, options.nodes))
 

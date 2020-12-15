@@ -19,18 +19,16 @@ def load_model(options):
     else:
         res = model.fit(x_train, y_train, validation_data = (x_test, y_test),
                         epochs = options.train_steps, batch_size = options.batch_size)
-        model.save_weights(name)
     return model
 # Train baseline RNN, tanh activation
 
-x_train, x_test, y_train, y_test = ds.load_dataset('./datasets/cartesian1000steps.npz')
-
 options = params.get_parameters()
+
+x_train, x_test, y_train, y_test = ds.load_dataset(f'./datasets/cartesian{options.timesteps}steps.npz')
 options.timesteps = y_test.shape[1]
 options.out_nodes = 50
-
 options.lr = 1e-5
-options.train_steps = 50
+#options.train_steps = 50
 
 model = load_model(options)
 
@@ -42,5 +40,6 @@ centers = model.expected_centers.numpy()
 
 name = f'./results/irnn_{options.timesteps}_steps/'
 model.save_weights(name)
+
 visualize.line_activities(states, plot_y, centers, options.out_nodes, save_loc = name)
 visualize.visualize_activities(states[0][None], plot_y[0][None], options.out_nodes, name)

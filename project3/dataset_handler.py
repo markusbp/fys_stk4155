@@ -12,8 +12,8 @@ def distance_to_wall(r, bound = 1):
 
 def create_path(samples, timesteps, dt = 0.1):
     # create samples paths of length timesteps, with stepsize dt
-    vmin = 0 # min speed
-    vmax = 0.5 # max speed
+    vmin = 0.5 # min speed
+    vmax = 1 # max speed
 
     s = np.zeros((samples, timesteps)) # speed
     hd = np.zeros((samples, timesteps)) # head direction
@@ -95,4 +95,5 @@ if __name__ == '__main__':
     print('Creating Datasets...')
     create_datasets(timesteps = 100)
     create_datasets(timesteps = 1000)
+    #create_datasets(timesteps = 10000) # for plotting only
     print('Success!')

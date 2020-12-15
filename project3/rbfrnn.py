@@ -27,7 +27,6 @@ name = f'./results/rbfrnn_{options.timesteps}_steps/'
 options.out_nodes = 50
 options.lr = 1e-5
 #options.train_steps = 50
-options.output_activation = 'relu'
 
 x_train, x_test, y_train, y_test = ds.load_dataset(f'./datasets/hd_s_{options.timesteps}steps.npz')
 
