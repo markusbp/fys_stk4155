@@ -16,7 +16,7 @@ class BaseLineRNN(tf.keras.Model):
         self.ts = options.timesteps
 
 
-        self.act_l2 = tf.keras.layers.ActivityRegularization(l2 = 1e-4)
+        #self.act_l2 = tf.keras.layers.ActivityRegularization(l2 = 1e-4)
 
 
     def call(self, inputs, training = True):
@@ -26,7 +26,7 @@ class BaseLineRNN(tf.keras.Model):
         initial_state = self.start_state*tf.ones((self.options.batch_size, 1))
         self.rnn_states = self.rnn_layer(inputs[0], initial_state = [initial_state])
 
-        self.act_l2(self.rnn_states)
+        #self.act_l2(self.rnn_states)
 
         self.outputs = self.output_layer(self.rnn_states)
 
