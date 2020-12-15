@@ -34,7 +34,7 @@ x_train, x_test, y_train, y_test = ds.load_dataset(f'./datasets/cartesian{option
 
 options.timesteps = y_test.shape[1]
 options.out_nodes = 50
-lr = 1e-5 # learning rate
+lr = 1e-4 # learning rate
 name = './results/baseline/'
 
 model = load_model(options, name)

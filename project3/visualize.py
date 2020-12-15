@@ -60,7 +60,7 @@ def visualize_activities(activations, r, max_cells = 10, save_loc = './results/h
 
             hists, binx, biny, binno = stats.binned_statistic_2d(x, y, states, bins = 50)
 
-            axs[i,j].imshow(hists, cmap = 'jet', origin = 'lower')
+            axs[i,j].imshow(hists, cmap = 'jet', origin = 'upper')
             axs[i,j].set_xticklabels([])
             axs[i,j].set_yticklabels([])
             axs[i,j].set_xlabel('x', fontsize = 12)

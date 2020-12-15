@@ -8,7 +8,7 @@ class BaseLineRNN(tf.keras.Model):
         super().__init__()
         self.options = options
         #
-        self.rnn_layer = tf.keras.layers.SimpleRNN(options.nodes, return_sequences = True)
+        self.rnn_layer = tf.keras.layers.SimpleRNN(options.nodes, return_sequences = True, recurrent_initializer = 'glorot_uniform')
         self.output_layer = tf.keras.layers.Dense(options.out_nodes, activation = 'relu')
         self.start_state = self.add_weight(name = 'init_state', shape = (1, options.nodes))
 
@@ -33,14 +33,14 @@ class BaseLineRNN(tf.keras.Model):
         ta = tf.keras.activations.softmax(self.outputs*self.options.beta, axis = 1)
         pa = tf.keras.activations.softmax(self.outputs*self.options.beta, axis = 2)
 
-        expanded_r = tf.reshape(r, (self.bs, self.ts, 1, 2))
-        expanded_ta = tf.reshape(ta, (self.bs, self.ts, -1, 1))
-        expanded_pa = tf.reshape(pa, (self.bs, self.ts, -1, 1))
+        expanded_r =  tf.expand_dims(r, axis = -2)
+        expanded_ta = tf.expand_dims(ta, axis = -1)
+        expanded_pa = tf.expand_dims(pa, axis = -1)
 
         weighted_centers = expanded_r*expanded_ta
         self.expected_centers = tf.reduce_sum(weighted_centers, axis = 1)
 
-        centers = tf.reshape(self.expected_centers, (self.bs, 1, -1, 2))
+        centers = tf.expand_dims(self.expected_centers, axis = 1)
         weighted_positions = expanded_pa*centers
         expected_position = tf.reduce_sum(weighted_positions, axis = -2)
 
@@ -69,7 +69,7 @@ class EgoRNN(tf.keras.Model):
         self.bs = options.batch_size
         self.ts = options.timesteps
 
-        #self.act_l2 = tf.keras.layers.ActivityRegularization(l2 = 1e-4)
+        #self.act_l2 = tf.keras.layers.ActivityRegularization(l2 = 1e-3)
 
     def call(self, inputs, training = True):
 
@@ -86,17 +86,17 @@ class EgoRNN(tf.keras.Model):
         else:
             self.outputs = self.output_layer(self.rnn_states)
 
-        ta = tf.keras.activations.softmax(self.outputs*self.options.beta, axis = 1)
-        pa = tf.keras.activations.softmax(self.outputs*self.options.beta, axis = 2)
+        ta = self.outputs/tf.reduce_sum(self.outputs + 1e-10, axis = 1, keepdims = True)#tf.keras.activations.softmax(self.outputs*self.options.beta, axis = 1)
+        pa = self.outputs/tf.reduce_sum(self.outputs + 1e-10, axis = 2, keepdims = True)#tf.keras.activations.softmax(self.outputs*self.options.beta, axis = 2)
 
-        expanded_r = tf.reshape(r, (self.bs, self.ts, 1, 2))
-        expanded_ta = tf.reshape(ta, (self.bs, self.ts, -1, 1))
-        expanded_pa = tf.reshape(pa, (self.bs, self.ts, -1, 1))
+        expanded_r =  tf.expand_dims(r, axis = -2)
+        expanded_ta = tf.expand_dims(ta, axis = -1)
+        expanded_pa = tf.expand_dims(pa, axis = -1)
 
         weighted_centers = expanded_r*expanded_ta
         self.expected_centers = tf.reduce_sum(weighted_centers, axis = 1)
 
-        centers = tf.reshape(self.expected_centers, (self.bs, 1, -1, 2))
+        centers = tf.expand_dims(self.expected_centers, axis = 1)
         weighted_positions = expanded_pa*centers
         expected_position = tf.reduce_sum(weighted_positions, axis = -2)
 
@@ -116,10 +116,11 @@ class RNNcell(tf.keras.layers.Layer):
 
         n_speed = 20
         n_hd = 50
-        vmax = 0.5
-        centers = tf.convert_to_tensor(np.linspace(0, vmax, n_speed, dtype = 'float32'))
+        vmin = 0.5
+        vmax = 1.0
+        centers = tf.convert_to_tensor(np.linspace(vmin, vmax, n_speed, dtype = 'float32'))
         self.speed_centers = tf.reshape(centers, (1, -1))
-        self.speed_sd =  vmax/n_speed
+        self.speed_sd =  (vmax-vmin)/n_speed
 
         hd_centers = np.linspace(0, 2*np.pi, n_hd, dtype = 'float32')[None,:]
         hd_sd = 2*np.pi # gives approximate max of 1
@@ -182,17 +183,17 @@ class RBFRNN(tf.keras.Model):
         else:
             self.outputs = self.output_layer(self.rnn_states)
 
-        ta = tf.keras.activations.softmax(self.outputs*self.options.beta, axis = 1)
-        pa = tf.keras.activations.softmax(self.outputs*self.options.beta, axis = 2)
+        ta = self.outputs/tf.reduce_sum(self.outputs + 1e-10, axis = 1, keepdims = True)#tf.keras.activations.softmax(self.outputs*self.options.beta, axis = 1)
+        pa = self.outputs/tf.reduce_sum(self.outputs + 1e-10, axis = 2, keepdims = True)#tf.keras.activations.softmax(self.outputs*self.options.beta, axis = 2)
 
-        expanded_r = tf.reshape(r, (self.bs, self.ts, 1, 2))
-        expanded_ta = tf.reshape(ta, (self.bs, self.ts, -1, 1))
-        expanded_pa = tf.reshape(pa, (self.bs, self.ts, -1, 1))
+        expanded_r =  tf.expand_dims(r, axis = -2)
+        expanded_ta = tf.expand_dims(ta, axis = -1)
+        expanded_pa = tf.expand_dims(pa, axis = -1)
 
         weighted_centers = expanded_r*expanded_ta
         self.expected_centers = tf.reduce_sum(weighted_centers, axis = 1)
 
-        centers = tf.reshape(self.expected_centers, (self.bs, 1, -1, 2))
+        centers = tf.expand_dims(self.expected_centers, axis = 1)
         weighted_positions = expanded_pa*centers
         expected_position = tf.reduce_sum(weighted_positions, axis = -2)
 

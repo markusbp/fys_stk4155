@@ -151,8 +151,8 @@ def check_dir(path):
 
 if __name__ == '__main__':
     check_dir('./results/')
-    # plot_place_cell()
-    # plot_grid_cell()
-    # plot_paths()
-    # plot_rbfs()
+    plot_place_cell()
+    plot_grid_cell()
+    plot_paths()
+    plot_rbfs()
     plot_decoding()
