@@ -43,7 +43,7 @@ def line_activities(states, r, centers, max_cells = 10, save_loc = './results/li
     plt.close()
 
 
-def visualize_activities(activations, r, max_cells = 10, save_loc = './results/heatmap'):
+def visualize_activities(activations, r, max_cells = 10, save_loc = './results/heatmap', title = None):
     check_dir(save_loc)
 
     x = np.ravel(r[:,:,0])
@@ -68,7 +68,10 @@ def visualize_activities(activations, r, max_cells = 10, save_loc = './results/h
             count += 1
 
     plt.tight_layout()
-    plt.savefig(save_loc + '_activations')
+    if title is not None:
+        plt.savefig(save_loc + title + '_activations.png')
+    else:
+        plt.savefig(save_loc + '_activations.png')
     plt.close()
 
 def check_dir(path):

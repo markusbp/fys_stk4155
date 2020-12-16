@@ -34,7 +34,7 @@ time; also shows distance.
 explain concepts in article.
 
 [grid_search.py](grid_search.py):
-Contains methods for grid searching either softmax beta parameter, or dropout rate.
+Contains method for searching l2 weight regularization (for rec. weight matrix).
 
-[search_dropout.py](search_dropout.py):
-Module for doing grid search for dropout.
+[search_l2.py](search_l2.py):
+Module for doing grid search for l2 weight regularization for IRNN.

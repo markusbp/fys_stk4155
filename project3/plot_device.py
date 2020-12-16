@@ -48,6 +48,7 @@ def plot_grid_cell():
     plt.close()
 
 def plot_paths():
+    # plot a single path from dataset
     dataset = './datasets/cartesian1000steps.npz'
     x_train, x_test, y_train, y_test = ds.load_dataset(dataset)
     r0 = y_test[:,0]
@@ -64,26 +65,27 @@ def plot_paths():
 
 
 def gaussian(r, s, mu):
+    # unnormalized gaussian
     return np.exp(-0.5*(r-mu)**2/s**2)
 
 def plot_rbfs():
+    # plot radial basis functions example
     fig = plt.figure(constrained_layout = True, figsize = (20, 10))
     spec = fig.add_gridspec(2, 3)
 
     count = 0
-
     axs = []
 
-    c = np.array([0, 0.1, 0.5, 0.8])*5
-    cols = ['c', 'r', 'm', 'blue']
-    x = np.linspace(0, 1 , 1000)*5
-    t = np.linspace(0, 1, 1000)
+    c = np.array([0, 0.1, 0.5, 0.8])*5 # centers
+    cols = ['c', 'r', 'm', 'blue'] # colors
+    x = np.linspace(0, 1 , 1000)*5 # velocity signal
+    t = np.linspace(0, 1, 1000)  # time
 
     axs.append(fig.add_subplot(spec[:,0]))
     axs[0].plot(t, x, linewidth = 0.75, color = 'grey')
     axs[0].set_xlabel('t', fontsize = 14)
     axs[0].set_ylabel('v(t)', fontsize = 14)
-
+    # Gaussian plot_rbfs
     count = 0
     for i in range(2):
         for j in range(1,3):
@@ -95,72 +97,67 @@ def plot_rbfs():
     plt.savefig('./results/visualize_rbf_pc')
     plt.close()
 
+    # Von Mises RBFs
     hd_centers = [-5/6*np.pi]
-    hd_sd = 2*np.pi
+    hd_sd = 2*np.pi # width
 
     hd = tfp.distributions.VonMises(hd_centers, hd_sd)
 
-    theta = np.linspace(-np.pi, np.pi, 1000)
+    theta = np.linspace(-np.pi, np.pi, 1000) # angular parameter
 
-    y = hd.prob(theta)
+    y = hd.prob(theta) # probability density
 
-    #plt.plot(theta, gaussian(theta, 1/(np.sqrt(2*np.pi)), -5/6*np.pi) )
     plt.plot(theta, y, '--r', linewidth = 0.75)
     plt.plot(theta[0], y[0], 'ob', markersize = 4)
     plt.plot(theta[-1], y[-1], 'ob', markersize = 4)
 
-    #plt.plot(theta[46:-46], y[46:-46])
     plt.xlabel('$\\theta$', fontsize = 12)
     plt.ylabel('$f(\\theta)$', fontsize = 12)
     plt.savefig('./results/visualize_rbf_vonMises')
     plt.close()
 
-def softmax(x, ax):
-    return np.exp(x)/np.sum(np.exp(x), axis = ax, keepdims = True)
-
 def plot_decoding():
-
+    # illustrate decoding process
+    r0 = 0.5
     t = np.linspace(0, 2*np.pi, 1000)
-    c1 = np.array([np.sqrt(2)/2, np.sqrt(2)/2]).reshape(1,2)
-    c2 = np.array([0, 1]).reshape(1, 2)
-    c3 = np.array([np.cos(np.pi/2 - 0.4), np.sin(np.pi/2-0.4)]).reshape(1,2)
-    centers = np.array([c1, c2, c3])
-    r = np.array([np.cos(t), np.sin(t)]).T
-
+    c1 = r0*np.array([1, 0]).reshape(1,2)
+    c2 = r0*np.array([0, 1]).reshape(1, 2)
+    c3 = r0*np.array([np.cos(np.pi/4), np.sin(np.pi/4)]).reshape(1,2)
+    centers = np.array([c1, c2, c3]) # place cell centers
+    r = r0*np.array([np.cos(t), np.sin(t)]).T
+    # generate three example place cells
     pc1 = np.exp( (-0.5*np.sum((r-c1)**2, axis = -1)/0.1**2))
     pc2 = np.exp( (-0.5*np.sum((r-c2)**2, axis = -1)/0.1**2))
     pc3 = np.exp( (-0.5*np.sum((r-c3)**2, axis = -1)/0.1**2))
-
     pcs = np.stack((pc1, pc2, pc3), axis = -1)
-    print(centers.shape)
 
-    softmaxxed = pcs/np.sum(pcs, axis = -1, keepdims = True)#softmax(pcs*100, ax = -1)
-    decoded = np.sum(softmaxxed[:,:,None]*centers[None,:,0], axis = -2)
-    print(softmaxxed.shape, decoded.shape)
+    # normalize across place cells at each step
+    prob = pcs/np.sum(pcs, axis = -1, keepdims = True)
+    decoded = np.sum(prob[:,:,None]*centers[None,:,0], axis = -2)
 
     fig, axs = plt.subplots(1, 2, constrained_layout = True, figsize = (10, 5))
-
+    # plot motion along circle, decoded position, and centers
     cols = ['k', 'r', 'grey']
     axs[1].plot(r[:,0], r[:,1], linewidth = 0.75)
-    axs[1].plot(decoded[:,0], decoded[:,1], '.', markersize = 1)
+    axs[1].plot(decoded[:,0], decoded[:,1], 'g*', markersize = 1, alpha = 0.3)
     for i, (pc, col) in enumerate(zip([pc1, pc2, pc3], cols)):
-        #axs[0].plot(t, pc, linewidth = 0.75, color = col, label = '$pc_{%.d}$' %i)
+        axs[0].plot(t, pc, linewidth = 0.75, color = col, label = '$pc_{%.d}$' %i, linestyle = '--')
         axs[1].plot(centers[i][0,0], centers[i][0,1], 'o', color = col, label = '$pc_{%.d}$' %i)
-        axs[0].plot(t, softmaxxed[:,i], linewidth = 0.75, color = col)
-    axs[0].set_xlabel('t', fontsize = 12)
-    axs[0].set_ylabel('$f_{pc}(t)$', fontsize = 12)
+        axs[0].plot(t, prob[:,i], linewidth = 0.75, color = col)
+    axs[0].set_xlabel('$\\theta$ [rad]', fontsize = 12)
+    axs[0].set_ylabel('$f_{pc}(\\theta)$', fontsize = 12)
     axs[1].set_xlabel('x', fontsize = 12)
     axs[1].set_ylabel('y', fontsize = 12)
     axs[1].set_aspect('equal')
     axs[0].legend(frameon = False)
     axs[1].legend(frameon = False)
-    plt.show()
+    plt.savefig('./results/decoded_gaussians.png')
+    plt.close()
 
 def check_dir(path):
     # check that path is a directory, if not, create it!
     if not os.path.isdir(path):
         os.makedirs(path)
-
 
 if __name__ == '__main__':
     check_dir('./results/')

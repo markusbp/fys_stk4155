@@ -21,15 +21,15 @@ def load_model(options, name):
                         epochs = options.train_steps, batch_size = options.batch_size)
         model.save_weights(name)
     return model
-# Train baseline RNN, tanh activation
 
+# Train IRNN on cartesian dataset
 options = params.get_parameters()
 
 x_train, x_test, y_train, y_test = ds.load_dataset(f'./datasets/cartesian{options.timesteps}steps.npz')
 options.timesteps = y_test.shape[1]
 options.out_nodes = 50
 options.lr = 1e-4
-#options.train_steps = 50
+#options.train_steps = 100
 name = f'./results/irnn_{options.timesteps}_steps/'
 
 model = load_model(options, name)
@@ -43,4 +43,14 @@ rnn_states = model.rnn_states.numpy()
 
 visualize.line_activities(states, plot_y, centers, options.out_nodes, save_loc = name)
 visualize.visualize_activities(states[0][None], plot_y[0][None], options.out_nodes, name)
-visualize.visualize_activities(rnn_states[0][None], plot_y[0][None], options.out_nodes, name + 'rnn')
+visualize.visualize_activities(rnn_states[0][None], plot_y[0][None], options.out_nodes, name, title = 'rnn')
+
+# Evaluate on test set
+res = model.evaluate(x_test, y_test, batch_size = options.batch_size)
+print(f'Model Test MAE for {options.timesteps} steps : {res[-1]}')
+
+'''
+Run example:
+
+
+'''

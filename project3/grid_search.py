@@ -8,89 +8,48 @@ import model_parameters as params
 import dataset_handler as ds
 import visualize
 
-def search_dropout(path, dataset, model_constructor, options):
-
+def search_l2(path, dataset, model_constructor, options):
+    # search l2 weight reg.
     if not os.path.isdir(path):
         os.makedirs(path)
+    # load dataset
+    x_train, x_test, y_train, y_test = ds.load_dataset(dataset)
+    # also plot activations for all trained models
 
-    x_train, x_test, y_train, y_test, r_train, r_test = ds.load_dataset(dataset)
-
-    n_plot = 5000
-    plot_x = (x_test[0][:n_plot], x_test[1][:n_plot])
-    plot_r = r_test[:n_plot]
+    plot_x = (x_test[0][:options.batch_size], x_test[1][:options.batch_size])
+    plot_y = y_test[:options.batch_size] # plot batch
 
     epochs = options.train_steps
 
     loss = tf.keras.losses.MSE
     optimizer = tf.keras.optimizers.Adam(options.lr)
 
-    drops = np.array([0, 0.1, 0.25, 0.5])
-    mae = np.zeros(len(drops))
+    l2s = np.geomspace(1e-6, 10, 8) # l2 values to search
+    mae = np.zeros(len(l2s)) # save mean absolute error
 
-    for i, rate in enumerate(drops):
+    for i, l2 in enumerate(l2s):
 
-        options.dropout_rate = rate
+        options.l2 = l2
         model = model_constructor(options)
 
         model.compile(loss = loss, optimizer = optimizer, metrics = ['mae'])
-
-        history = model.fit(x_train, y_train, epochs = epochs)
-
-        results = model.evaluate(x_test, y_test)
+        # train and evaluate
+        history = model.fit(x_train, y_train, epochs = epochs, batch_size = options.batch_size)
+        results = model.evaluate(x_test, y_test, batch_size = options.batch_size)
 
         mae[i] = results[-1] # mean absolute error
 
         model(plot_x, training = False) # run to get states as np arrays
         states = model.outputs.numpy()
+        rnn_states = model.rnn_states.numpy()
+        name = f'l2_{l2}'
 
-        name = f'{path}_rate_{rate}.png'
-        visualize.visualize_activities(states, plot_r, name)
+        visualize.visualize_activities(states[0][None], plot_y[0][None], options.out_nodes, path, title = name + '_pc')
+        visualize.visualize_activities(rnn_states[0][None], plot_y[0][None], options.out_nodes, path, title = name + '_rnn')
 
-    plt.plot(drops, mae, 'o', linewidth = 0.75)
-    plt.xlabel('Dropout Rate', fontsize = 12)
+    # plot and save errors
+    plt.semilogx(l2s, mae, 'r-o', linewidth = 0.75)
+    plt.xlabel('L2', fontsize = 12)
     plt.ylabel('MAE', fontsize = 12)
-    plt.savefig(f'{path}mae_drop.png')
-    plt.close()
-
-def search_beta(path, dataset, model_constructor, options):
-
-    if not os.path.isdir(path):
-        os.makedirs(path)
-
-    x_train, x_test, y_train, y_test, r_train, r_test = ds.load_dataset(dataset)
-
-    n_plot = 5000
-    plot_x = (x_test[0][:n_plot], x_test[1][:n_plot])
-    plot_r = r_test[:n_plot]
-
-    epochs = options.train_steps
-
-    loss = tf.keras.losses.MSE
-    optimizer = tf.keras.optimizers.Adam(options.lr)
-
-    betas = np.array([1, 10, 100, 1000])
-    mae = np.zeros(len(betas))
-
-    for i, beta in enumerate(betas):
-
-        options.beta = beta
-        model = model_constructor(options)
-
-        model.compile(loss = loss, optimizer = optimizer, metrics = ['mae'])
-
-        history = model.fit(x_train, y_train, epochs = epochs)
-        results = model.evaluate(x_test, y_test)
-
-        mae[i] = results[-1] # mean absolute error
-
-        model(plot_x, training = False) # run to get states as np arrays
-        states = model.outputs.numpy()
-
-        name = f'{path}_beta_{beta}.png'
-        visualize.visualize_activities(states, plot_r, name)
-
-    plt.plot(betas, mae, 'o', linewidth = 0.75)
-    plt.xlabel('Beta', fontsize = 12)
-    plt.ylabel('MAE', fontsize = 12)
-    plt.savefig(f'{path}mae_beta.png')
+    plt.savefig(f'{path}mae_l2.png')
     plt.close()

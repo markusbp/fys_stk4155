@@ -51,7 +51,6 @@ def create_path(samples, timesteps, dt = 0.1):
         # bounds hd diff between -pi and pi
         turn = np.where(should_turn, np.sign(hd_diff), 0)
 
-
         s[:,i+1] =  s[:,i] + np.random.normal(0, 0.1, samples)
         hd[:,i+1] =  hd[:,i] + np.random.normal(0, stddev, (samples)) +  turn
         hd[:,i+1] = np.mod(hd[:,i+1], 2*np.pi)
@@ -79,9 +78,9 @@ def create_datasets(save_loc = './datasets/', samples = 10000, timesteps = 1000)
     np.savez(f'{save_loc}/hd_s_{timesteps}steps', x = z, y = r)
 
 def load_dataset(name):
-    data = np.load(name)
-    x = data['x']
-    y = data['y']
+    data = np.load(name) # load npz file
+    x = data['x'] # inputs
+    y = data['y'] # targets
     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size = 0.8)
     # repackage to include initial position and predict correct timesteps
     y_train = y_train[:,1:] # agent does not stand still during first step!
