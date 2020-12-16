@@ -25,8 +25,8 @@ def load_model(options):
 options = params.get_parameters()
 
 options.out_nodes = 50 # number of "place cells"
-options.lr = 1e-4
-#options.train_steps = 100
+options.lr = 5e-5
+options.train_steps = 100
 
 x_train, x_test, y_train, y_test = ds.load_dataset(f'./datasets/hd_s_{options.timesteps}steps.npz')
 options.timesteps = y_test.shape[-1]
@@ -48,3 +48,10 @@ visualize.visualize_activities(rnn_states[0][None], plot_y[0][None], options.out
 # Evaluate on test set
 res = model.evaluate(x_test, y_test, batch_size = options.batch_size)
 print(f'Model Test MAE for {options.timesteps} steps : {res[-1]}')
+
+
+'''
+Run example:
+
+
+'''

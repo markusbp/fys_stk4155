@@ -28,8 +28,8 @@ options = params.get_parameters()
 x_train, x_test, y_train, y_test = ds.load_dataset(f'./datasets/cartesian{options.timesteps}steps.npz')
 options.timesteps = y_test.shape[1]
 options.out_nodes = 50
-options.lr = 1e-4
-#options.train_steps = 100
+options.lr = 5e-5
+options.train_steps = 100
 name = f'./results/irnn_{options.timesteps}_steps/'
 
 model = load_model(options, name)
@@ -51,6 +51,8 @@ print(f'Model Test MAE for {options.timesteps} steps : {res[-1]}')
 
 '''
 Run example:
+Model Test MAE for 99 steps : 0.008004626259207726
 
+Run Example 2:
 
 '''

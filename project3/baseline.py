@@ -33,8 +33,8 @@ x_train, x_test, y_train, y_test = ds.load_dataset(f'./datasets/cartesian{option
 
 options.timesteps = y_test.shape[1] # actual number of timesteps is one less (starting step)
 options.out_nodes = 50 # "place cells"
-#options.train_steps = 100 # number of training epochs
-options.lr = 1e-4 # learning rate
+options.train_steps = 100 # number of training epochs
+options.lr = 5e-5 # learning rate
 
 name = f'./results/baseline_{options.timesteps}_steps/'
 
@@ -58,7 +58,9 @@ res = model.evaluate(x_test, y_test, batch_size = options.batch_size)
 print(f'Model Test MAE for {options.timesteps} steps : {res[-1]}')
 
 '''
-Run Example:
+Run Example 1:
+Model Test MAE for 99 steps : 0.015122444368898869
 
-
+Run Example 2:
+Model Test MAE for 999 steps : 0.25813546776771545
 '''

@@ -119,7 +119,7 @@ class RNNcell(tf.keras.layers.Layer):
         n_speed = 20
         n_hd = 50
         vmin = 0
-        vmax = 0.5
+        vmax = 1
         centers = tf.convert_to_tensor(np.linspace(vmin, vmax, n_speed, dtype = 'float32'))
         self.speed_centers = tf.reshape(centers, (1, -1))
         self.speed_sd =  (vmax-vmin)/n_speed
