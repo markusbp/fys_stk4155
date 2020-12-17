@@ -34,7 +34,7 @@ x_train, x_test, y_train, y_test = ds.load_dataset(f'./datasets/cartesian{option
 options.timesteps = y_test.shape[1] # actual number of timesteps is one less (starting step)
 options.out_nodes = 50 # "place cells"
 options.train_steps = 100 # number of training epochs
-options.lr = 5e-5 # learning rate
+options.lr = 1e-5 # learning rate
 
 name = f'./results/baseline_{options.timesteps}_steps/'
 
@@ -49,9 +49,9 @@ rnn_states = model.rnn_states.numpy() # grid cell activations ?
 centers = model.expected_centers.numpy() # place cell centers
 
 # plot all activations
-visualize.line_activities(states, plot_y, centers, options.out_nodes, name)
-visualize.visualize_activities(states[0][None], plot_y[0][None], options.out_nodes, name)
-visualize.visualize_activities(rnn_states[0][None], plot_y[0][None], options.out_nodes, name, title = 'rnn')
+visualize.line_activities(states, plot_y, centers, 20, name)
+visualize.visualize_activities(states[0][None], plot_y[0][None], 15, name)
+visualize.visualize_activities(rnn_states[0][None], plot_y[0][None], 15, name, title = 'rnn')
 
 # Evaluate on test set
 res = model.evaluate(x_test, y_test, batch_size = options.batch_size)
@@ -59,8 +59,8 @@ print(f'Model Test MAE for {options.timesteps} steps : {res[-1]}')
 
 '''
 Run Example 1:
-Model Test MAE for 99 steps : 0.015122444368898869
+Model Test MAE for 99 steps : 0.02768213115632534
 
 Run Example 2:
-Model Test MAE for 999 steps : 0.25813546776771545
+Model Test MAE for 999 steps : 0.11991414427757263
 '''

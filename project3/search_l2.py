@@ -17,6 +17,6 @@ options.train_steps = 50
 lr = 1e-4
 
 irnn = lambda opt: models.EgoRNN(opt) # best performer
-destination = './results/dropout_search/' # save here
+destination = './results/l2_search/' # save here
 dataset = './datasets/cartesian1000steps.npz'
 grid_search.search_l2(destination, dataset, irnn, options)

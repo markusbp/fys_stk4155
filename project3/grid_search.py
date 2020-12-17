@@ -1,6 +1,5 @@
 import os
 import numpy as np
-import seaborn as sns
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
@@ -24,7 +23,7 @@ def search_l2(path, dataset, model_constructor, options):
     loss = tf.keras.losses.MSE
     optimizer = tf.keras.optimizers.Adam(options.lr)
 
-    l2s = np.geomspace(1e-6, 10, 8) # l2 values to search
+    l2s = np.geomspace(1e-2, 1, 3) # l2 values to search
     mae = np.zeros(len(l2s)) # save mean absolute error
 
     for i, l2 in enumerate(l2s):

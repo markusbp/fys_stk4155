@@ -25,11 +25,11 @@ def load_model(options):
 options = params.get_parameters()
 
 options.out_nodes = 50 # number of "place cells"
-options.lr = 5e-5
+options.lr = 1e-4
 options.train_steps = 100
 
 x_train, x_test, y_train, y_test = ds.load_dataset(f'./datasets/hd_s_{options.timesteps}steps.npz')
-options.timesteps = y_test.shape[-1]
+options.timesteps = y_test.shape[1]
 name = f'./results/rbfrnn_{options.timesteps}_steps/'
 
 model = load_model(options)
@@ -43,15 +43,17 @@ centers = model.expected_centers.numpy()
 # visualize RNN + output activations, in space and output in time
 visualize.line_activities(pc_states, plot_y, centers, options.out_nodes, name)
 visualize.visualize_activities(pc_states[0][None], plot_y[0][None], options.out_nodes, name)
-visualize.visualize_activities(rnn_states[0][None], plot_y[0][None], options.out_nodes, name + 'rnn')
+visualize.visualize_activities(rnn_states[0][None], plot_y[0][None], options.out_nodes, name, title = 'rnn')
 
 # Evaluate on test set
 res = model.evaluate(x_test, y_test, batch_size = options.batch_size)
 print(f'Model Test MAE for {options.timesteps} steps : {res[-1]}')
 
-
 '''
-Run example:
+Run example 1:
+Model Test MAE for 99 steps : 0.0151401711627841
 
+Run example 2:
+Model Test MAE for 999 steps : 0.053383298218250275
 
 '''

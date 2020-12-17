@@ -11,21 +11,22 @@ def line_activities(states, r, centers, max_cells = 10, save_loc = './results/li
     show_path = 0
     rows = max_cells // 5
     cols = max_cells // rows
-
+    # plot activations in time
     fig = plt.figure(constrained_layout = True, figsize = (20, 20))
     spec = fig.add_gridspec(rows + 1, cols)
     count = 0
 
     axs = []
     axs.append(fig.add_subplot(spec[0, 2]))
-    axs[0].plot(r[show_path, 0, 0], r[show_path, 0, 1], 'ok')
+    axs[0].plot(r[show_path, 0, 0], r[show_path, 0, 1], 'og')
     axs[0].plot(r[show_path, :, 0], r[show_path, :, 1], 'r', linewidth = 0.75)
     axs[0].set_xlim([-1.2, 1.2])
     axs[0].set_ylim([-1.2, 1.2])
     axs[0].set_xlabel('x', fontsize = 14)
     axs[0].set_ylabel('y', fontsize = 14)
-    axs[0].plot(centers[show_path,:, 0], centers[show_path, :, 1], 'g*', markersize = 1)
+    axs[0].plot(centers[show_path,:, 0], centers[show_path, :, 1], 'k*', markersize = 2)
 
+    # also plot distance along second y-axis
     d = np.linalg.norm(centers[:, None,:] - r[:,:, None,:], axis = -1)
 
     for i in range(1, rows + 1):
@@ -45,11 +46,11 @@ def line_activities(states, r, centers, max_cells = 10, save_loc = './results/li
 
 def visualize_activities(activations, r, max_cells = 10, save_loc = './results/heatmap', title = None):
     check_dir(save_loc)
-
+    # visualize spatially meaned activations
     x = np.ravel(r[:,:,0])
     y = np.ravel(r[:,:,1])
 
-    rows = max_cells // 10
+    rows = max_cells // 5
     cols = max_cells // rows
 
     fig, axs = plt.subplots(rows, cols , figsize = (20, 20))
@@ -57,10 +58,10 @@ def visualize_activities(activations, r, max_cells = 10, save_loc = './results/h
     for i in range(rows):
         for j in range(cols):
             states = np.ravel(activations[:,:,:max_cells][:,:,count])
-
+            # bins and computes means
             hists, binx, biny, binno = stats.binned_statistic_2d(x, y, states, bins = 50)
 
-            axs[i,j].imshow(hists, cmap = 'jet', origin = 'upper')
+            axs[i,j].imshow(hists.T, cmap = 'jet', origin = 'lower')
             axs[i,j].set_xticklabels([])
             axs[i,j].set_yticklabels([])
             axs[i,j].set_xlabel('x', fontsize = 12)

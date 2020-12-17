@@ -68,7 +68,7 @@ def create_datasets(save_loc = './datasets/', samples = 10000, timesteps = 1000)
 
     # save a little bit of space
     r = r.astype('float32')
-    v = np.stack((s, np.cos(hd), np.sin(hd)), axis = -1) # velocity
+    v = s[:,:,None]*np.stack((np.cos(hd), np.sin(hd)), axis = -1) # velocity
     # create Cartesian dataset
     x = v.astype('float32')
     np.savez(f'{save_loc}/cartesian{timesteps}steps', x = x, y = r)
@@ -93,5 +93,5 @@ if __name__ == '__main__':
     print('Creating Datasets...')
     create_datasets(timesteps = 100)
     create_datasets(timesteps = 1000)
-    #create_datasets(timesteps = 10000) # for plotting only
+    create_datasets(timesteps = 10000) # for plotting only
     print('Success!')
